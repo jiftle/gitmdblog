@@ -118,9 +118,12 @@ func GetTopicByPath(path string) (*Topic, error) {
 	// ------------------ 使用blackfriday引擎喧嚷markdown ------------------
 	input := content.Bytes()
 	output := blackfriday.Run(input)
+	stext := string(output)
+
+	//fmt.Println(stext)
 
 	// ------------------ 直接输出到页面 -----------------------
-	t.Content = string(output)
+	t.Content = string(stext)
 	t.TopicPath = path
 
 	finfo, _ := os.Stat(path)

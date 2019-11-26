@@ -167,7 +167,8 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 			"priority":   "0.2",
 		})
 	}
-	//tag router
+
+	//tag 标签 router
 	for i := range models.TopicsGroupByTag {
 		var buff bytes.Buffer
 		err := tpl.ExecuteTemplate(&buff, "list.tpl", map[string]interface{}{
