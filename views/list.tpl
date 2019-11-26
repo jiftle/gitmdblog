@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
     <title>iTopic - 老彭的博客</title>
-    <link rel="stylesheet" href="/static/css/markdown.css">
+    <link rel="stylesheet" href="/static/css/github-markdown-css/3.0.1/github-markdown.min.css">
 </head>
 <body>
 <h1 class="title">{{.title}}存档</h1>

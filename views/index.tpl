@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
     <title>HappyLife - 小鸟的博客</title>
     <meta name="description" content="记录和分享程序开发过程中的经验和体会。写更优美的程序，做更好的IT人！" />
-    <link rel="stylesheet" href="/static/css/markdown.css">
+    <link rel="stylesheet" href="/static/css/github-markdown-css/3.0.1/github-markdown.min.css">
 </head>
 <body>
 <h1 class="title">你我相遇皆是有缘</h1>
