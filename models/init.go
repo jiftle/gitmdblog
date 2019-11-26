@@ -2,13 +2,15 @@ package models
 
 import (
 	"fmt"
+	"gitmdblog/config"
 	"os"
 	"time"
 )
 
 // ---------------- 定义变量 ----------------
 var (
-	topicMarkdownFolder = "posts"
+	//	topicMarkdownFolder = "posts"
+	topicMarkdownFolder = config.GetBlogPostsDir()
 
 	//Topics store all the topic
 	Topics []*Topic

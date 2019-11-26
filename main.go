@@ -3,17 +3,17 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"net/http"
-	"os"
-	"strings"
-	"text/template"
-
+	logger "github.com/ccpaging/log4go"
 	"gitmdblog/models"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"path/filepath"
+	"strings"
+	"text/template"
 	"time"
 )
 
@@ -25,7 +25,16 @@ var (
 	githubURL    = "https://github.com/pengbotao/itopic.go"
 )
 
+func init() {
+	logger_init()
+}
+
+func logger_init() {
+	logger.LoadConfiguration("conf/log4go.xml")
+}
+
 func main() {
+	logger.Info("%s", "--- in main ---")
 	router := loadHTTPRouter()
 	ticker := time.NewTicker(1800 * time.Second)
 	go func() {
