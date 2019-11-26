@@ -3,9 +3,7 @@ package models
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"gopkg.in/russross/blackfriday.v2"
 	"os"
 	"path/filepath"
@@ -13,39 +11,8 @@ import (
 	"time"
 )
 
-//InitTopicList load all the topic on init
-func InitTopicList() error {
-	Topics = Topics[:0]
-	TopicsGroupByMonth = TopicsGroupByMonth[:0]
-	TopicsGroupByTag = TopicsGroupByTag[:0]
-	return filepath.Walk(topicMarkdownFolder, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() || filepath.Ext(path) != ".md" {
-			return nil
-		}
-		t, err := GetTopicByPath(path)
-		if err != nil {
-			return err
-		}
-		if t.TopicPath == "" {
-			return nil
-		}
-		SetTopicToTag(t)
-		SetTopicToMonth(t)
-		//append topics desc
-		for i := range Topics {
-			if t.Time.After(Topics[i].Time) {
-				Topics = append(Topics, nil)
-				copy(Topics[i+1:], Topics[i:])
-				Topics[i] = t
-				return nil
-			}
-		}
-		Topics = append(Topics, t)
-		return nil
-	})
-}
-
 //GetTopicByPath read the topic by path
+// 读取文章内容
 func GetTopicByPath(path string) (*Topic, error) {
 	fp, err := os.OpenFile(path, os.O_RDONLY, 0)
 	if err != nil {
@@ -61,22 +28,21 @@ func GetTopicByPath(path string) (*Topic, error) {
 	for scanner.Scan() {
 		s := scanner.Text()
 		tHeadStr += s
+		tHeadStr += "\n"
 		if len(s) == 0 {
 			break
 		}
 	}
-	tHeadStr = strings.Trim(tHeadStr, "```")
-	type tHeadJSON struct {
-		URL      string
-		Time     string
-		Tag      string
-		IsPublic string `json:"public"`
-	}
+
 	var thj tHeadJSON
-	if err := json.Unmarshal([]byte(tHeadStr), &thj); err != nil {
-		fmt.Println("Notice: " + path + "/" + t.Title + "：" + err.Error())
+
+	// ---------------- 截取头部信息 ----------------
+	err, thj = parseTopicHead(tHeadStr, *t)
+	if err != nil {
 		return t, nil
 	}
+
+	// ------------ 赋值 ------------------
 	t.TopicID = thj.URL
 	if t.TopicID == "" {
 		return nil, errors.New(t.Title + "：" + err.Error())
@@ -132,6 +98,39 @@ func GetTopicByPath(path string) (*Topic, error) {
 		t.LastModifyTime = lastModTime
 	}
 	return t, nil
+}
+
+//InitTopicList load all the topic on init
+// 加载所有的博客文章
+func InitTopicList() error {
+	Topics = Topics[:0]
+	TopicsGroupByMonth = TopicsGroupByMonth[:0]
+	TopicsGroupByTag = TopicsGroupByTag[:0]
+	return filepath.Walk(topicMarkdownFolder, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() || filepath.Ext(path) != ".md" {
+			return nil
+		}
+		t, err := GetTopicByPath(path)
+		if err != nil {
+			return err
+		}
+		if t.TopicPath == "" {
+			return nil
+		}
+		SetTopicToTag(t)
+		SetTopicToMonth(t)
+		//append topics desc
+		for i := range Topics {
+			if t.Time.After(Topics[i].Time) {
+				Topics = append(Topics, nil)
+				copy(Topics[i+1:], Topics[i:])
+				Topics[i] = t
+				return nil
+			}
+		}
+		Topics = append(Topics, t)
+		return nil
+	})
 }
 
 //SetTopicToTag set topic to tag struct

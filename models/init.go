@@ -9,7 +9,7 @@ import (
 
 // ---------------- 定义变量 ----------------
 var (
-	//	topicMarkdownFolder = "posts"
+	// 博客文章目录
 	topicMarkdownFolder = config.GetBlogPostsDir()
 
 	//Topics store all the topic
