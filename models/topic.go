@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"gopkg.in/russross/blackfriday.v2"
+	"gitmdblog/config"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 //GetTopicByPath read the topic by path
@@ -97,6 +99,10 @@ func GetTopicByPath(path string) (*Topic, error) {
 	if lastModTime.Unix()-t.Time.Unix() > 7*86400 && time.Now().Unix()-lastModTime.Unix() < 365*86400 {
 		t.LastModifyTime = lastModTime
 	}
+
+	// ----------------- 站点配置 -----------------
+	t.SiteName = config.GetSiteName()
+
 	return t, nil
 }
 

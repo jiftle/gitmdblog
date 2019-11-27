@@ -22,6 +22,7 @@ var (
 
 //Topic struct
 type Topic struct {
+	SiteName       string
 	TopicID        string
 	Title          string
 	Time           time.Time

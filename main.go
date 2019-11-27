@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	logger "github.com/ccpaging/log4go"
+	"gitmdblog/config"
 	"gitmdblog/models"
 	"io"
 	"io/ioutil"
@@ -15,9 +15,12 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	logger "github.com/ccpaging/log4go"
 )
 
 var (
+	siteName     = config.GetSiteName()
 	host         = "127.0.0.1:8001"
 	isCreateHTML = false
 	htmlPrefix   = "../itopic.org" //without last slash
@@ -26,17 +29,15 @@ var (
 )
 
 func init() {
-	logger_init()
-}
-
-func logger_init() {
 	logger.LoadConfiguration("conf/log4go.xml")
 }
 
 func main() {
 	logger.Info("%s", "--- in main ---")
 	router := loadHTTPRouter()
-	ticker := time.NewTicker(1800 * time.Second)
+
+	// 定时器，定时刷新
+	ticker := time.NewTicker(3 * time.Second)
 	go func() {
 		for range ticker.C {
 			models.InitTopicList()
@@ -84,18 +85,23 @@ func main() {
 func loadHTTPRouter() map[string]bytes.Buffer {
 	router := make(map[string]bytes.Buffer)
 	var tpl *template.Template
+
+	// 指定模板文件存放目录
 	tpl, err := template.ParseGlob("views/*.tpl")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	var pages []map[string]string
-	//homepage router
+
+	//首页 homepage router
 	var buff bytes.Buffer
 	topicCnt := len(models.Topics)
 	topicDivCnt := topicCnt / 2
-	var topicsLeft []*models.TopicMonth
-	var topicsRight []*models.TopicMonth
+
+	var topicsLeft []*models.TopicMonth  //左侧
+	var topicsRight []*models.TopicMonth //右侧
+
 	if topicDivCnt > 0 {
 		t := 0
 		isSplit := false
@@ -114,7 +120,10 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	} else {
 		topicsLeft = models.TopicsGroupByMonth
 	}
+
+	// 网页模板
 	if err := tpl.ExecuteTemplate(&buff, "index.tpl", map[string]interface{}{
+		"siteName":  siteName,
 		"topics_l":  topicsLeft,
 		"topics_r":  topicsRight,
 		"domain":    domain,
@@ -126,13 +135,15 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	}
 	router["/"] = buff
 	router["/index"] = buff
+
 	pages = append(pages, map[string]string{
 		"loc":        domain + "/",
 		"lastmod":    time.Now().Format("2006-01-02"),
 		"changefreq": "weekly",
 		"priority":   "1",
 	})
-	//topic router
+
+	// 文章页 topic router
 	for i := range models.Topics {
 		if models.Topics[i].IsPublic == false {
 			continue
