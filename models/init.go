@@ -12,8 +12,9 @@ var (
 	// 博客文章目录
 	topicMarkdownFolder = config.GetBlogPostsDir()
 
-	//Topics store all the topic
+	//Topics store all the topic 存储所有的文章
 	Topics []*Topic
+
 	//TopicsGroupByMonth store the topic by month
 	TopicsGroupByMonth []*TopicMonth
 	//TopicsGroupByTag store all the tag

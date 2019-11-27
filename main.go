@@ -40,6 +40,7 @@ func main() {
 	ticker := time.NewTicker(3 * time.Second)
 	go func() {
 		for range ticker.C {
+			// 初始化文章列表
 			models.InitTopicList()
 			hr := loadHTTPRouter()
 			router = hr

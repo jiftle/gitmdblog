@@ -22,6 +22,7 @@ type HeadMeta struct {
 
 // 分析文章头 --yaml
 func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
+	fmt.Println(tHeadStr)
 	var thj tHeadJSON
 	var headMeta HeadMeta
 	if err := yaml.Unmarshal([]byte(tHeadStr), &headMeta); err != nil {

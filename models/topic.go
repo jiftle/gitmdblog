@@ -16,19 +16,33 @@ import (
 //GetTopicByPath read the topic by path
 // 读取文章内容
 func GetTopicByPath(path string) (*Topic, error) {
+	// 打开文件
 	fp, err := os.OpenFile(path, os.O_RDONLY, 0)
 	if err != nil {
 		return nil, errors.New(path + "：" + err.Error())
 	}
 	defer fp.Close()
+
+	// 初始化结构体
 	t := &Topic{
 		Title:    strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)),
 		IsPublic: true,
 	}
+
 	var tHeadStr string
+	var i int
+	i = 0
 	scanner := bufio.NewScanner(fp)
+
 	for scanner.Scan() {
+		i += 1
 		s := scanner.Text()
+		if i != 1 && s == "---" {
+			break
+		}
+		if s == "---" {
+			continue
+		}
 		tHeadStr += s
 		tHeadStr += "\n"
 		if len(s) == 0 {
@@ -107,24 +121,36 @@ func GetTopicByPath(path string) (*Topic, error) {
 }
 
 //InitTopicList load all the topic on init
-// 加载所有的博客文章
+// 初始化文章列表
 func InitTopicList() error {
+	// 清空文章存储
 	Topics = Topics[:0]
+
+	// 按月份分组
 	TopicsGroupByMonth = TopicsGroupByMonth[:0]
+	// 按标签分组
 	TopicsGroupByTag = TopicsGroupByTag[:0]
+
+	// 遍历文件
 	return filepath.Walk(topicMarkdownFolder, func(path string, info os.FileInfo, err error) error {
+		// 过滤目录或无关文件
 		if info.IsDir() || filepath.Ext(path) != ".md" {
 			return nil
 		}
+
+		// 根据路径获取文章
 		t, err := GetTopicByPath(path)
 		if err != nil {
 			return err
 		}
+		// 文件路径为空，直接返回
 		if t.TopicPath == "" {
 			return nil
 		}
+
 		SetTopicToTag(t)
 		SetTopicToMonth(t)
+
 		//append topics desc
 		for i := range Topics {
 			if t.Time.After(Topics[i].Time) {
@@ -139,7 +165,7 @@ func InitTopicList() error {
 	})
 }
 
-//SetTopicToTag set topic to tag struct
+//SetTopicToTag set topic to tag struct 设置标签结构
 func SetTopicToTag(t *Topic) {
 	if t.IsPublic == false {
 		return
@@ -167,7 +193,7 @@ func SetTopicToTag(t *Topic) {
 	}
 }
 
-//SetTopicToMonth set topic to month struct
+//SetTopicToMonth set topic to month struct 月份结构
 func SetTopicToMonth(t *Topic) {
 	if t.IsPublic == false {
 		return
