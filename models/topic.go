@@ -37,6 +37,11 @@ func GetTopicByPath(path string) (*Topic, error) {
 	for scanner.Scan() {
 		i += 1
 		s := scanner.Text()
+		if i == 1 {
+			if s != "---" {
+				return t, nil
+			}
+		}
 		if i != 1 && s == "---" {
 			break
 		}
@@ -105,7 +110,7 @@ func GetTopicByPath(path string) (*Topic, error) {
 	//fmt.Println(stext)
 
 	// ------------------ 直接输出到页面 -----------------------
-	t.Content = string(stext)
+	t.Content = stext
 	t.TopicPath = path
 
 	finfo, _ := os.Stat(path)

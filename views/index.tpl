@@ -22,7 +22,7 @@
      <h3>左侧</h3>
         {{range .topics_l}}
         <ul class="list-group">{{range .Topics}}
-        <li class="list-group-item list-group-item-action">[{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
+        <li class="list-group-item list-group-item-action"><a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
         </ul>
         {{end}}
     </div>
@@ -30,7 +30,7 @@
       <h3>右侧</h3>
         {{range .topics_r}}
         <ul  class="list-group">{{range .Topics}}
-            <li class="list-group-item list-group-item-action">[{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
+            <li class="list-group-item list-group-item-action"><a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
         </ul>
         {{end}}
     </div>

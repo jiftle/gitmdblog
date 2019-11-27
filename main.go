@@ -40,6 +40,7 @@ func main() {
 	ticker := time.NewTicker(3 * time.Second)
 	go func() {
 		for range ticker.C {
+			fmt.Println("---> ticker round **>>**>>")
 			// 初始化文章列表
 			models.InitTopicList()
 			hr := loadHTTPRouter()
