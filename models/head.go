@@ -22,7 +22,7 @@ type HeadMeta struct {
 
 // 分析文章头 --yaml
 func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
-	fmt.Println(tHeadStr)
+	//fmt.Println(tHeadStr)
 	var thj tHeadJSON
 	var headMeta HeadMeta
 	if err := yaml.Unmarshal([]byte(tHeadStr), &headMeta); err != nil {
@@ -30,14 +30,14 @@ func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
 		logger.Warn("Notice: " + err.Error())
 		return err, thj
 	}
-	fmt.Println(headMeta)
+	//fmt.Println(headMeta)
 
 	thj.URL = headMeta.Title
 	thj.Time = "1999/01/01 01:01"
 	thj.Tag = headMeta.Tags
 
-	fmt.Println(thj.URL)
-	fmt.Println(thj)
+	//fmt.Println(thj.URL)
+	//fmt.Println(thj)
 	return nil, thj
 }
 

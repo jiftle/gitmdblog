@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"gopkg.in/russross/blackfriday.v2"
+	//"github.com/jiftle/blackfriday"
 )
 
 //GetTopicByPath read the topic by path
@@ -37,10 +38,8 @@ func GetTopicByPath(path string) (*Topic, error) {
 	for scanner.Scan() {
 		i += 1
 		s := scanner.Text()
-		if i == 1 {
-			if s != "---" {
-				return t, nil
-			}
+		if i == 1 && s != "---" {
+			return t, nil
 		}
 		if i != 1 && s == "---" {
 			break
@@ -110,7 +109,7 @@ func GetTopicByPath(path string) (*Topic, error) {
 	//fmt.Println(stext)
 
 	// ------------------ 直接输出到页面 -----------------------
-	t.Content = stext
+	t.Content = string(stext)
 	t.TopicPath = path
 
 	finfo, _ := os.Stat(path)

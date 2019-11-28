@@ -45,6 +45,10 @@ go run main.go
 - 不需要生成静态页面时将`main.go`中`isCreateHTML`设置为false，默认为false。
 - `domain`用来定义模版页链接前缀，可设置为空
 
+## 效果截图
+
+![截图]()
+
 
 ## 感谢(创造者)
 

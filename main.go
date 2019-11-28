@@ -20,6 +20,7 @@ import (
 )
 
 var (
+	postDir      = config.GetBlogPostsDir()
 	siteName     = config.GetSiteName()
 	host         = "127.0.0.1:8001"
 	isCreateHTML = false
@@ -32,7 +33,26 @@ func init() {
 	logger.LoadConfiguration("conf/log4go.xml")
 }
 
+func DirIsExisted(filename string) bool {
+	file := filename
+
+	// 判断文件是否存在
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		logger.Info("file: %v isn't exist.\n", file)
+		return false
+	}
+	return true
+}
 func main() {
+	msg := fmt.Sprintf("posts directory: %s\n", postDir)
+	fmt.Printf(msg)
+	if DirIsExisted(postDir) == false {
+		logger.Error("目录%s 不存在", postDir)
+		msg := fmt.Sprintf("目录%s 不存在\n", postDir)
+		fmt.Printf(msg)
+		os.Exit(1)
+	}
+
 	logger.Info("%s", "--- in main ---")
 	router := loadHTTPRouter()
 
@@ -40,7 +60,7 @@ func main() {
 	ticker := time.NewTicker(3 * time.Second)
 	go func() {
 		for range ticker.C {
-			fmt.Println("---> ticker round **>>**>>")
+			//fmt.Println("---> ticker round **>>**>>")
 			// 初始化文章列表
 			models.InitTopicList()
 			hr := loadHTTPRouter()
@@ -219,6 +239,17 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 		os.Exit(1)
 	}
 	router["/sitemap"] = sitemapBuff
+
+	//关于
+	var aboutBuff bytes.Buffer
+	if err := tpl.ExecuteTemplate(&aboutBuff, "about.tpl", map[string]interface{}{
+		"siteName": siteName,
+	}); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	router["/about"] = aboutBuff
+
 	//create html
 	if isCreateHTML == true {
 		go generateHTML(router)
