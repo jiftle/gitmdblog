@@ -9,8 +9,6 @@ import (
 var (
 	siteName     = "HappeLife"
 	blogPostsDir = "posts"
-	//blogPostsDir = "/media/jiftle/work/work/git/coding_net/grocery/dailylog"
-//	blogPostsDir = "/usrlocal/git/coding_net/grocery/dailylog"
 )
 
 // 获取博客文章目录
@@ -33,18 +31,17 @@ func readConfig() {
 	config.SetConfigName("gitmdblog")
 	if err := config.ReadInConfig(); err != nil {
 		fmt.Println("[x] 配置文件不存在，创建默认配置文件")
+
+		//---------- 写入配置文件 -------------
+		config.Set("postsdir", "posts")
+		bakconf := fmt.Sprintf("./conf/gitmdblog.yaml")
+		if err := config.WriteConfigAs(bakconf); err != nil {
+			fmt.Println("[x] 创建默认配置文件失败")
+			panic(err)
+		}
 	}
 
-	//---------- 写入配置文件 -------------
-	bakconf := fmt.Sprintf("./conf/gitmdblog.yaml")
-	if err := config.WriteConfigAs(bakconf); err != nil {
-		fmt.Println("[x] 创建默认配置文件失败")
-		panic(err)
-		config.Set("postsdir", "posts")
-		config.WriteConfig()
-	}
 	blogPostsDir = config.GetString("postsdir")
-	fmt.Println("[v] 读取配置文件成功")
-	//	msg := fmt.Sprintf("posts dir: %s\n", blogPostsDir)
-	//	fmt.Print(msg)
+	msg := fmt.Sprintf("[v] 读取配置文件成功, posts dir: %s\n", blogPostsDir)
+	fmt.Print(msg)
 }

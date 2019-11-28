@@ -6,6 +6,7 @@
 *.dylib
 gitmdblog
 logs/*
+conf/gitmdblog.yaml
 # Test binary, build with `go test -c`
 *.test
 
