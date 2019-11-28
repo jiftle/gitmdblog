@@ -47,7 +47,8 @@ go run main.go
 
 ## 效果截图
 
-![截图]()
+![截图](https://raw.githubusercontent.com/jiftle/gitmdblog/master/static/uploads/screenshot01.png)
+
 
 
 ## 感谢(创造者)
