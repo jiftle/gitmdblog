@@ -36,6 +36,9 @@
       <a class="nav-link" href="#">分组</a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="/reload">刷新缓存</a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="./about">关于</a>
     </li>
   </ul>

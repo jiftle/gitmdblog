@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	logger "github.com/ccpaging/log4go"
 	"gopkg.in/russross/blackfriday.v2"
 	//"github.com/jiftle/blackfriday"
 )
@@ -69,6 +70,7 @@ func GetTopicByPath(path string) (*Topic, error) {
 	}
 	t.Time, err = time.Parse("2006/01/02 15:04", thj.Time)
 	if err != nil {
+		logger.Error(t.Title + "：" + err.Error())
 		return nil, errors.New(t.Title + "：" + err.Error())
 	}
 	if strings.Compare(thj.IsPublic, "no") == 0 {
@@ -153,6 +155,8 @@ func InitTopicList() error {
 		}
 
 		SetTopicToTag(t)
+
+		// 按月份分组
 		SetTopicToMonth(t)
 
 		//append topics desc
@@ -202,18 +206,23 @@ func SetTopicToMonth(t *Topic) {
 	if t.IsPublic == false {
 		return
 	}
+
+	//logger.Debug("---- >>> --- >>> 月份分组 ")
 	month := t.Time.Format("2006-01")
 	tm := &TopicMonth{}
 	for _, m := range TopicsGroupByMonth {
+		logger.Debug("---- >>> --- >>> xx 进度循环[月份分组] %v", m)
 		if m.Month == month {
 			tm = m
 		}
 	}
 	if tm.Month == "" {
+		logger.Debug("---- >>> --- >>> xx 进度循环[月份分组]  month != nil")
 		tm.Month = month
 		isFind := false
 		for i := range TopicsGroupByMonth {
 			if strings.Compare(tm.Month, TopicsGroupByMonth[i].Month) > 0 {
+				logger.Debug("月份分组: %v", TopicsGroupByMonth[i].Month)
 				TopicsGroupByMonth = append(TopicsGroupByMonth, nil)
 				copy(TopicsGroupByMonth[i+1:], TopicsGroupByMonth[i:])
 				TopicsGroupByMonth[i] = tm
@@ -225,8 +234,11 @@ func SetTopicToMonth(t *Topic) {
 			TopicsGroupByMonth = append(TopicsGroupByMonth, tm)
 		}
 	}
+	logger.Debug("---- >>> --- >>> xx 进度循环[月份分组]  month == nil")
 	for i := range tm.Topics {
+		logger.Debug("---- >>> --- >>> xx 进度循环[月份分组]  tm.Topics")
 		if t.Time.After(tm.Topics[i].Time) {
+			logger.Debug("---- >>> --- >>>  %v After %v", t.Time, tm.Topics[i].Time)
 			tm.Topics = append(tm.Topics, nil)
 			copy(tm.Topics[i+1:], tm.Topics[i:])
 			tm.Topics[i] = t

@@ -19,6 +19,8 @@ var (
 	TopicsGroupByMonth []*TopicMonth
 	//TopicsGroupByTag store all the tag
 	TopicsGroupByTag []*TopicTag
+
+	TopicsGroupMonthListGroup []*TopicGroup
 )
 
 //Topic struct
@@ -45,6 +47,17 @@ type TopicTag struct {
 type TopicMonth struct {
 	Month  string
 	Topics []*Topic
+}
+
+//文章分组
+type TopicGroup struct {
+	TopicMonthLists []*TopicMonthList
+}
+
+// 文章月分组列表
+type TopicMonthList struct {
+	Title string
+	Url   string
 }
 
 func init() {

@@ -2,10 +2,13 @@ package models
 
 import (
 	"encoding/json"
+	_ "errors"
 	"fmt"
 	logger "github.com/ccpaging/log4go"
+	"github.com/noaway/dateparse"
 	yaml "gopkg.in/yaml.v2"
 	"strings"
+	"time"
 )
 
 type tHeadJSON struct {
@@ -26,18 +29,40 @@ func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
 	var thj tHeadJSON
 	var headMeta HeadMeta
 	if err := yaml.Unmarshal([]byte(tHeadStr), &headMeta); err != nil {
-		fmt.Println("Notice: " + err.Error())
 		logger.Warn("Notice: " + err.Error())
+		fmt.Println("Notice: " + err.Error())
 		return err, thj
 	}
+	//2019-11-28 Thu. 日记
 	//fmt.Println(headMeta)
+	//logger.Debug("标题: %s", headMeta.Title)
+	thjTime := headMeta.Title
+	if pos := strings.Index(thjTime, " "); pos > 0 {
+		thjTime = thjTime[0:pos]
+		//logger.Debug("时间: %s", thjTime)
+	}
 
-	thj.URL = headMeta.Title
-	thj.Time = "1999/01/01 01:01"
-	thj.Tag = headMeta.Tags
+	// 设置时区
+	denverLoc, _ := time.LoadLocation("Asia/Shanghai")
+	// use time.Local global variable to store location
+	time.Local = denverLoc
+	tTime, err := dateparse.ParseAny(thjTime)
+	if err != nil {
+		logger.Warn(thjTime + "时间转换失败," + err.Error())
+		thj.URL = headMeta.Title
+		thj.Time = "1999/01/01 01:01"
+		thj.Tag = headMeta.Tags
+	} else {
+		//logger.Debug("Time: %v", tTime)
+		thj.URL = headMeta.Title
+		//thj.Time = tTime.Format("1999/01/01")
+		//	thj.Time = "1999/01/01 01:01"
+		thj.Time = tTime.Format("2006/01/02") + " 01:01"
 
-	//fmt.Println(thj.URL)
-	//fmt.Println(thj)
+		//logger.Debug("格式化后的时间: %v", tTime.Format("2006/01/02"))
+		thj.Tag = headMeta.Tags
+	}
+
 	return nil, thj
 }
 
