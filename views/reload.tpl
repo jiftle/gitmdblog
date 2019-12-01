@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>刷新缓存 - {{.topic.SiteName}}</title>
+  <title>刷新缓存 - {{.siteName}}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/static/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -9,6 +9,17 @@
   <script src="/static/jquery/3.2.1/jquery.min.js"></script>
   <script src="/static/popper.js/1.15.0/umd/popper.min.js"></script>
   <script src="/static/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script type="text/javascript" language="javascript">
+var i = 5;
+intervalid = setInterval("fun()", 300);
+function fun(){
+	if(i==0){
+		history.go(-1);
+		clearInterval(intervalid);
+	}
+	i--;
+}
+</script>
 </head>
 <style>
 .markdown-body {
@@ -33,7 +44,7 @@
       <a class="nav-link" href="./">首页</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="#">分组</a>
+      <a class="nav-link" href="/group">分组</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="/reload">刷新缓存</a>

@@ -17,7 +17,7 @@
       <a class="nav-link" href="./">首页</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="/2019-11">分组</a>
+      <a class="nav-link" href="/group">分组</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="/reload">刷新缓存</a>
@@ -38,7 +38,7 @@
      <h3>文章列表</h3>
         {{range .topics_l}}
         <ul class="list-group">{{range .Topics}}
-        <li class="list-group-item list-group-item-action"><a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
+        <li class="list-group-item list-group-item-action">[{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
         </ul>
         {{end}}
     </div>
@@ -46,7 +46,7 @@
       <h3>右侧</h3>
         {{range .topics_r}}
         <ul  class="list-group">{{range .Topics}}
-            <li class="list-group-item list-group-item-action"><a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
+            <li class="list-group-item list-group-item-action">[{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
         </ul>
         {{end}}
     </div>

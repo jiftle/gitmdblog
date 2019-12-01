@@ -26,6 +26,7 @@ type HeadMeta struct {
 // 分析文章头 --yaml
 func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
 	//fmt.Println(tHeadStr)
+	fmt.Println(t)
 	var thj tHeadJSON
 	var headMeta HeadMeta
 	if err := yaml.Unmarshal([]byte(tHeadStr), &headMeta); err != nil {
@@ -50,6 +51,7 @@ func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
 	if err != nil {
 		logger.Warn(thjTime + "时间转换失败," + err.Error())
 		thj.URL = headMeta.Title
+		//		thj.URL = headMeta.Title
 		thj.Time = "1999/01/01 01:01"
 		thj.Tag = headMeta.Tags
 	} else {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>{{.siteName}}</title>
+  <title>列表 - {{.siteName}}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/static/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -17,7 +17,7 @@
       <a class="nav-link" href="./">首页</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="#">分组</a>
+      <a class="nav-link" href="/group">分组</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="/reload">刷新缓存</a>
@@ -31,9 +31,12 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12">
+    <span>
 <h1 class="title">{{.title}}存档</h1>
-<ul>{{range .topics}}
-    <li>[{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
+<ul>
+    {{range .topics}}
+    <li>[{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>
+    {{end}}
 </ul>
     </div>
   </div>

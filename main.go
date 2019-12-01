@@ -35,16 +35,6 @@ func init() {
 	logger.LoadConfiguration("conf/log4go.xml")
 }
 
-func DirIsExisted(filename string) bool {
-	file := filename
-
-	// 判断文件是否存在
-	if _, err := os.Stat(file); os.IsNotExist(err) {
-		logger.Info("file: %v isn't exist.\n", file)
-		return false
-	}
-	return true
-}
 func main() {
 	var msg string
 	if DirIsExisted(postDir) == false {
@@ -121,15 +111,9 @@ func main() {
 		w.Write(aboutBuff.Bytes())
 	})
 
-	//--------------- 自定义文字LOGO ----------------
-	fmt.Println(`  ________  .__    __                  .___ __________  .__                     `)
-	fmt.Println(` /  _____/  |__| _/  |_    _____     __| _/ \______   \ |  |     ____      ____ `)
-	fmt.Println(`/   \  ___  |  | \   __\  /     \   / __ |   |    |  _/ |  |    /  _ \    / ___\`)
-	fmt.Println(`\    \_\  \ |  |  |  |   |  Y Y  \ / /_/ |   |    |   \ |  |__ (  <_> )  / /_/  >`)
-	fmt.Println(` \______  / |__|  |__|   |__|_|  / \____ |   |______  / |____/  \____/   \___  /`)
-	fmt.Println(`        \/                     \/       \/          \/                  /_____/ `)
-	fmt.Println(`                                                         --writed by jiftle     `)
-	fmt.Println(`                                                                                `)
+	// 打印LOGO
+	PrintLOGO()
+
 	fmt.Printf("The GitMdBlog server is running at http://%s\n", host)
 	fmt.Printf("Quit the server with Control-C\n\n")
 	if err := http.ListenAndServe(host, nil); err != nil {
@@ -139,6 +123,7 @@ func main() {
 
 // 加载路由
 func loadHTTPRouter() map[string]bytes.Buffer {
+	// 定义路由切片
 	router := make(map[string]bytes.Buffer)
 	var tpl *template.Template
 
@@ -158,7 +143,8 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	var topicsLeft []*models.TopicMonth  //左侧
 	var topicsRight []*models.TopicMonth //右侧
 
-	if topicDivCnt > 0 {
+	// 文章
+	if topicDivCnt > 0 { //不是整数，有余数
 		t := 0
 		isSplit := false
 		for i := range models.TopicsGroupByMonth {
@@ -206,6 +192,7 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 		}
 		var buff bytes.Buffer
 		err := tpl.ExecuteTemplate(&buff, "topic.tpl", map[string]interface{}{
+			"siteName":  siteName,
 			"topic":     models.Topics[i],
 			"domain":    domain,
 			"time":      time.Now(),
@@ -229,9 +216,10 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	for i := range models.TopicsGroupByMonth {
 		var buff bytes.Buffer
 		err := tpl.ExecuteTemplate(&buff, "list.tpl", map[string]interface{}{
-			"title":  models.TopicsGroupByMonth[i].Month,
-			"topics": models.TopicsGroupByMonth[i].Topics,
-			"domain": domain,
+			"siteName": siteName,
+			"title":    models.TopicsGroupByMonth[i].Month,
+			"topics":   models.TopicsGroupByMonth[i].Topics,
+			"domain":   domain,
 		})
 		if err != nil {
 			fmt.Println(err)
@@ -250,9 +238,10 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	for i := range models.TopicsGroupByTag {
 		var buff bytes.Buffer
 		err := tpl.ExecuteTemplate(&buff, "list.tpl", map[string]interface{}{
-			"title":  models.TopicsGroupByTag[i].TagName,
-			"topics": models.TopicsGroupByTag[i].Topics,
-			"domain": domain,
+			"siteName": siteName,
+			"title":    models.TopicsGroupByTag[i].TagName,
+			"topics":   models.TopicsGroupByTag[i].Topics,
+			"domain":   domain,
 		})
 		if err != nil {
 			fmt.Println(err)
@@ -266,6 +255,20 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 			"priority":   "0.2",
 		})
 	}
+
+	// ------------------ 分组 ------------------
+	var groupBuff bytes.Buffer
+	if err := tpl.ExecuteTemplate(&groupBuff, "group.tpl", map[string]interface{}{
+		"siteName": siteName,
+		"title":    "分组",
+		"tags":     models.TopicsGroupByTag,
+		"months":   models.TopicsGroupByMonth,
+	}); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	router["/group"] = groupBuff
+
 	//sitemap
 	var sitemapBuff bytes.Buffer
 	if err := tpl.ExecuteTemplate(&sitemapBuff, "sitemap.tpl", map[string]interface{}{
@@ -276,7 +279,7 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	}
 	router["/sitemap"] = sitemapBuff
 
-	//关于
+	// ------------ 关于 ----------------
 	var aboutBuff bytes.Buffer
 	if err := tpl.ExecuteTemplate(&aboutBuff, "about.tpl", map[string]interface{}{
 		"siteName": siteName,
