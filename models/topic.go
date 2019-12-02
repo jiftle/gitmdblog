@@ -152,7 +152,9 @@ func InitTopicList() error {
 			return nil
 		}
 
+		// 按标签分组
 		SetTopicToTag(t)
+		// 按月份分组
 		SetTopicToMonth(t)
 
 		//append topics desc
@@ -164,6 +166,8 @@ func InitTopicList() error {
 				return nil
 			}
 		}
+
+		// 加入队列末尾
 		Topics = append(Topics, t)
 		return nil
 	})
