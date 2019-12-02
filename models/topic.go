@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	logger "github.com/ccpaging/log4go"
 	"gopkg.in/russross/blackfriday.v2"
 	//"github.com/jiftle/blackfriday"
 )
@@ -26,6 +27,7 @@ func GetTopicByPath(path string) (*Topic, error) {
 
 	// 初始化结构体
 	t := &Topic{
+		TopicID:  strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)),
 		Title:    strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)),
 		IsPublic: true,
 	}
@@ -63,12 +65,13 @@ func GetTopicByPath(path string) (*Topic, error) {
 	}
 
 	// ------------ 赋值 ------------------
-	t.TopicID = thj.URL
-	if t.TopicID == "" {
-		return nil, errors.New(t.Title + "：" + err.Error())
-	}
+	//t.TopicID = thj.URL
+	// if t.TopicID == "" {
+	// 	return nil, errors.New(t.Title + "：" + err.Error())
+	// }
 	t.Time, err = time.Parse("2006/01/02 15:04", thj.Time)
 	if err != nil {
+		logger.Error(t.Title + "：" + err.Error())
 		return nil, errors.New(t.Title + "：" + err.Error())
 	}
 	if strings.Compare(thj.IsPublic, "no") == 0 {
@@ -206,18 +209,23 @@ func SetTopicToMonth(t *Topic) {
 	if t.IsPublic == false {
 		return
 	}
+
 	month := t.Time.Format("2006-01")
+	logger.Debug("---- >>> --- >>> 月份分组 %v, topic=%v", month, t.Title)
 	tm := &TopicMonth{}
 	for _, m := range TopicsGroupByMonth {
+		//	logger.Debug("---- >>> --- >>> xx 进度循环[月份分组] %v", m)
 		if m.Month == month {
 			tm = m
 		}
 	}
 	if tm.Month == "" {
+		//logger.Debug("---- >>> --- >>> xx 进度循环[月份分组]  month != nil")
 		tm.Month = month
 		isFind := false
 		for i := range TopicsGroupByMonth {
 			if strings.Compare(tm.Month, TopicsGroupByMonth[i].Month) > 0 {
+				//		logger.Debug("月份分组: %v", TopicsGroupByMonth[i].Month)
 				TopicsGroupByMonth = append(TopicsGroupByMonth, nil)
 				copy(TopicsGroupByMonth[i+1:], TopicsGroupByMonth[i:])
 				TopicsGroupByMonth[i] = tm
@@ -229,10 +237,17 @@ func SetTopicToMonth(t *Topic) {
 			TopicsGroupByMonth = append(TopicsGroupByMonth, tm)
 		}
 	}
+
+	// 遍历分组文章列表
 	for i := range tm.Topics {
+		//	logger.Debug("---- >>> --- >>> xx 进度循环[月份分组]  tm.Topics")
 		if t.Time.After(tm.Topics[i].Time) {
+			//	logger.Debug("---- >>> --- >>>  %v After %v", t.Time, tm.Topics[i].Time)
+			// 追加到列表里
 			tm.Topics = append(tm.Topics, nil)
+			// 后继元素整体后移
 			copy(tm.Topics[i+1:], tm.Topics[i:])
+			// 插入新文章
 			tm.Topics[i] = t
 			return
 		}

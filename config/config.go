@@ -7,8 +7,9 @@ import (
 
 // ---------------- 定义变量 ----------------
 var (
-	siteName     = "HappeLife"
-	blogPostsDir = "posts"
+	siteName      = "HappeLife"
+	blogPostsDir  = "posts"
+	refreshSecond = 60 * 5
 )
 
 // 获取博客文章目录
@@ -19,6 +20,10 @@ func GetBlogPostsDir() string {
 
 func GetSiteName() string {
 	return siteName
+}
+
+func GetRefreshSecond() int {
+	return refreshSecond
 }
 
 func readConfig() {
@@ -34,14 +39,15 @@ func readConfig() {
 
 		//---------- 写入配置文件 -------------
 		config.Set("postsdir", "posts")
+		config.Set("refreshsecond", 300)
 		bakconf := fmt.Sprintf("./conf/gitmdblog.yaml")
 		if err := config.WriteConfigAs(bakconf); err != nil {
 			fmt.Println("[x] 创建默认配置文件失败")
 			panic(err)
 		}
 	}
-
 	blogPostsDir = config.GetString("postsdir")
+	refreshSecond = config.GetInt("refreshSecond")
 	msg := fmt.Sprintf("[v] 读取配置文件成功, posts dir: %s\n", blogPostsDir)
 	fmt.Print(msg)
 }

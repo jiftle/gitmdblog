@@ -20,49 +20,42 @@ import (
 )
 
 var (
-	postDir      = config.GetBlogPostsDir()
-	siteName     = config.GetSiteName()
-	host         = "127.0.0.1:8001"
-	isCreateHTML = false
-	htmlPrefix   = "../itopic.org" //without last slash
-	domain       = ""
-	githubURL    = "https://github.com/pengbotao/itopic.go"
+	postDir       = config.GetBlogPostsDir()  //文章目录
+	siteName      = config.GetSiteName()      //站点名称
+	refreshSecond = config.GetRefreshSecond() //刷新频率
+	host          = "127.0.0.1:8001"
+	isCreateHTML  = false
+	htmlPrefix    = "../itopic.org" //without last slash
+	domain        = ""
+	githubURL     = "https://github.com/pengbotao/itopic.go"
 )
 
 func init() {
+	// 日志初始化
 	logger.LoadConfiguration("conf/log4go.xml")
 }
 
-func DirIsExisted(filename string) bool {
-	file := filename
-
-	// 判断文件是否存在
-	if _, err := os.Stat(file); os.IsNotExist(err) {
-		logger.Info("file: %v isn't exist.\n", file)
-		return false
-	}
-	return true
-}
 func main() {
-	msg := fmt.Sprintf("posts directory: %s\n", postDir)
-	fmt.Printf(msg)
+	var msg string
 	if DirIsExisted(postDir) == false {
-		logger.Error("目录%s 不存在", postDir)
-		msg := fmt.Sprintf("目录%s 不存在\n", postDir)
+		msg = fmt.Sprintf("目录%s 不存在", postDir)
+		logger.Error(msg)
 		fmt.Printf(msg)
 		os.Exit(1)
 	}
 
-	logger.Info("%s", "--- in main ---")
+	// 加载路由设置
 	router := loadHTTPRouter()
 
 	// 定时器，定时刷新
-	ticker := time.NewTicker(3 * time.Second)
+	ticker := time.NewTicker(time.Duration(refreshSecond) * time.Second)
 	go func() {
 		for range ticker.C {
-			//fmt.Println("---> ticker round **>>**>>")
+			logger.Debug("---> ticker round **>>**>>")
 			// 初始化文章列表
 			models.InitTopicList()
+
+			// 加载路由
 			hr := loadHTTPRouter()
 			router = hr
 		}
@@ -74,9 +67,13 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
+		logger.Debug("请求:%s", path)
 		if pos := strings.LastIndex(path, "."); pos > 0 {
 			path = path[0:pos]
+			logger.Debug("截取名字: %s", path)
 		}
+
+		// 在路由表里查找
 		if bf, ok := router[path]; ok {
 			if strings.Compare("/sitemap", path) == 0 {
 				w.Header().Set("Content-Type", "text/xml; charset=UTF-8")
@@ -89,14 +86,35 @@ func main() {
 		}
 	})
 
+	// 刷新
 	http.HandleFunc("/reload", func(w http.ResponseWriter, r *http.Request) {
 		models.InitTopicList()
 		hr := loadHTTPRouter()
 		router = hr
-		http.NotFound(w, r)
+		//http.NotFound(w, r)
+		var tpl *template.Template
+		var aboutBuff bytes.Buffer
+
+		// 指定模板文件存放目录
+		tpl, err := template.ParseGlob("views/*.tpl")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		if err := tpl.ExecuteTemplate(&aboutBuff, "reload.tpl", map[string]interface{}{
+			"siteName": siteName,
+		}); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		w.Write(aboutBuff.Bytes())
 	})
 
-	fmt.Printf("The topic server is running at http://%s\n", host)
+	// 打印LOGO
+	PrintLOGO()
+
+	fmt.Printf("The GitMdBlog server is running at http://%s\n", host)
 	fmt.Printf("Quit the server with Control-C\n\n")
 	if err := http.ListenAndServe(host, nil); err != nil {
 		fmt.Print(err)
@@ -105,6 +123,7 @@ func main() {
 
 // 加载路由
 func loadHTTPRouter() map[string]bytes.Buffer {
+	// 定义路由切片
 	router := make(map[string]bytes.Buffer)
 	var tpl *template.Template
 
@@ -124,7 +143,8 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	var topicsLeft []*models.TopicMonth  //左侧
 	var topicsRight []*models.TopicMonth //右侧
 
-	if topicDivCnt > 0 {
+	// 文章
+	if topicDivCnt > 0 { //不是整数，有余数
 		t := 0
 		isSplit := false
 		for i := range models.TopicsGroupByMonth {
@@ -172,6 +192,7 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 		}
 		var buff bytes.Buffer
 		err := tpl.ExecuteTemplate(&buff, "topic.tpl", map[string]interface{}{
+			"siteName":  siteName,
 			"topic":     models.Topics[i],
 			"domain":    domain,
 			"time":      time.Now(),
@@ -189,13 +210,16 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 			"priority":   "0.9",
 		})
 	}
+
+	//http://127.0.0.1:8001/2019-11
 	//month router
 	for i := range models.TopicsGroupByMonth {
 		var buff bytes.Buffer
 		err := tpl.ExecuteTemplate(&buff, "list.tpl", map[string]interface{}{
-			"title":  models.TopicsGroupByMonth[i].Month,
-			"topics": models.TopicsGroupByMonth[i].Topics,
-			"domain": domain,
+			"siteName": siteName,
+			"title":    models.TopicsGroupByMonth[i].Month,
+			"topics":   models.TopicsGroupByMonth[i].Topics,
+			"domain":   domain,
 		})
 		if err != nil {
 			fmt.Println(err)
@@ -214,9 +238,10 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	for i := range models.TopicsGroupByTag {
 		var buff bytes.Buffer
 		err := tpl.ExecuteTemplate(&buff, "list.tpl", map[string]interface{}{
-			"title":  models.TopicsGroupByTag[i].TagName,
-			"topics": models.TopicsGroupByTag[i].Topics,
-			"domain": domain,
+			"siteName": siteName,
+			"title":    models.TopicsGroupByTag[i].TagName,
+			"topics":   models.TopicsGroupByTag[i].Topics,
+			"domain":   domain,
 		})
 		if err != nil {
 			fmt.Println(err)
@@ -230,6 +255,20 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 			"priority":   "0.2",
 		})
 	}
+
+	// ------------------ 分组 ------------------
+	var groupBuff bytes.Buffer
+	if err := tpl.ExecuteTemplate(&groupBuff, "group.tpl", map[string]interface{}{
+		"siteName": siteName,
+		"title":    "分组",
+		"tags":     models.TopicsGroupByTag,
+		"months":   models.TopicsGroupByMonth,
+	}); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	router["/group"] = groupBuff
+
 	//sitemap
 	var sitemapBuff bytes.Buffer
 	if err := tpl.ExecuteTemplate(&sitemapBuff, "sitemap.tpl", map[string]interface{}{
@@ -240,7 +279,7 @@ func loadHTTPRouter() map[string]bytes.Buffer {
 	}
 	router["/sitemap"] = sitemapBuff
 
-	//关于
+	// ------------ 关于 ----------------
 	var aboutBuff bytes.Buffer
 	if err := tpl.ExecuteTemplate(&aboutBuff, "about.tpl", map[string]interface{}{
 		"siteName": siteName,

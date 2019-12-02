@@ -17,7 +17,10 @@
       <a class="nav-link" href="./">首页</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="#">分组</a>
+      <a class="nav-link" href="/group">分组</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/reload">刷新缓存</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="./about">关于</a>
@@ -32,18 +35,22 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-6">
-     <h3>文章列表</h3>
         {{range .topics_l}}
-        <ul class="list-group">{{range .Topics}}
-        <li class="list-group-item list-group-item-action"><a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
+        <h4>{{.Month}}</h4>
+        <ul class="list-group">
+        {{range  $index, $elem :=.Topics}}
+        <li class="list-group-item list-group-item-action">(<span class="text-success">{{$index}}</span>)&nbsp; [{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>
+        {{end}}
         </ul>
         {{end}}
     </div>
     <div class="col-sm-6">
-      <h3>右侧</h3>
         {{range .topics_r}}
-        <ul  class="list-group">{{range .Topics}}
-            <li class="list-group-item list-group-item-action"><a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>{{end}}
+        <h4>{{.Month}}</h4>
+        <ul  class="list-group">
+            {{range $index, $elem :=.Topics}}
+            <li class="list-group-item list-group-item-action">(<span class="text-success">{{$index}}</span>)&nbsp;[{{.Time.Format "06-01-02"}}] <a href="{{$.domain}}/{{.TopicID}}.html">{{.Title}}</a></li>
+            {{end}}
         </ul>
         {{end}}
     </div>
