@@ -13,19 +13,20 @@ import (
 
 type tHeadJSON struct {
 	URL      string
-	Time     string
+	Time     string `json:"time"`
 	Tag      string
 	IsPublic string `json:"public"`
 }
 
 type HeadMeta struct {
 	Title string
+	Time  string
 	Tags  string
 }
 
 // 分析文章头 --yaml
 func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
-	//fmt.Println(tHeadStr)
+	fmt.Println(tHeadStr)
 	fmt.Println(t)
 	var thj tHeadJSON
 	var headMeta HeadMeta
@@ -37,34 +38,54 @@ func parseTopicHead_YAML(tHeadStr string, t Topic) (error, tHeadJSON) {
 	//2019-11-28 Thu. 日记
 	//fmt.Println(headMeta)
 	//logger.Debug("标题: %s", headMeta.Title)
-	thjTime := headMeta.Title
-	if pos := strings.Index(thjTime, " "); pos > 0 {
-		thjTime = thjTime[0:pos]
-		//logger.Debug("时间: %s", thjTime)
-	}
+	fmt.Printf("title: %v\n", headMeta.Title)
+	fmt.Printf("time: %v\n", headMeta.Time)
 
-	// 设置时区
-	denverLoc, _ := time.LoadLocation("Asia/Shanghai")
-	// use time.Local global variable to store location
-	time.Local = denverLoc
-	tTime, err := dateparse.ParseAny(thjTime)
-	if err != nil {
-		logger.Warn(thjTime + "时间转换失败," + err.Error())
-		thj.URL = headMeta.Title
-		//		thj.URL = headMeta.Title
-		thj.Time = "1999/01/01 01:01"
-		thj.Tag = headMeta.Tags
+	var thjTime string
+	var createTime string
+
+	if headMeta.Time == "" {
+		thjTime = headMeta.Title
+		if pos := strings.Index(thjTime, " "); pos > 0 {
+			thjTime = thjTime[0:pos]
+			//logger.Debug("时间: %s", thjTime)
+		}
+
+		// ---------------- 时间转换 --------------
+		// 设置时区
+		denverLoc, _ := time.LoadLocation("Asia/Shanghai")
+		// use time.Local global variable to store location
+		time.Local = denverLoc
+		tTime, err := dateparse.ParseAny(thjTime)
+		if err != nil {
+			logger.Warn(thjTime + "--(1)时间转换失败," + err.Error())
+			createTime = "1999/01/01 01:01"
+		} else {
+			createTime = tTime.Format("2006/01/02") + " 01:01"
+		}
 	} else {
-		//logger.Debug("Time: %v", tTime)
-		thj.URL = headMeta.Title
-		//thj.Time = tTime.Format("1999/01/01")
-		//	thj.Time = "1999/01/01 01:01"
-		thj.Time = tTime.Format("2006/01/02") + " 01:01"
+		thjTime = headMeta.Time + ":00"
 
-		//logger.Debug("格式化后的时间: %v", tTime.Format("2006/01/02"))
-		thj.Tag = headMeta.Tags
+		// ---------------- 时间转换 --------------
+		// 设置时区
+		denverLoc, _ := time.LoadLocation("Asia/Shanghai")
+		// use time.Local global variable to store location
+		time.Local = denverLoc
+		tTime, err := dateparse.ParseAny(thjTime)
+		if err != nil {
+			logger.Warn(thjTime + "--(2)时间转换失败," + err.Error())
+			createTime = "1999/01/01 01:01"
+		} else {
+			createTime = tTime.Format("2006/01/02 15:04")
+		}
 	}
 
+	//logger.Debug("Time: %v", tTime)
+	thj.URL = headMeta.Title
+	thj.Time = createTime
+	thj.Tag = headMeta.Tags
+
+	fmt.Printf("--- thj: %v\n", thj)
 	return nil, thj
 }
 

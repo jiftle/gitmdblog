@@ -104,7 +104,7 @@ func GetTopicByPath(path string) (*Topic, error) {
 		content.WriteString("\n")
 	}
 
-	// ------------------ 使用blackfriday引擎喧嚷markdown ------------------
+	// ------------------ 使用blackfriday引擎渲染markdown ------------------
 	input := content.Bytes()
 	output := blackfriday.Run(input)
 	stext := string(output)
