@@ -10,6 +10,7 @@ var (
 	siteName      = "HappeLife"
 	blogPostsDir  = "posts"
 	refreshSecond = 60 * 5
+	host          = "0.0.0.0:8080"
 )
 
 // 获取博客文章目录
@@ -26,6 +27,10 @@ func GetRefreshSecond() int {
 	return refreshSecond
 }
 
+func GetHost() string {
+	return host
+}
+
 func readConfig() {
 
 	// 读取文件
@@ -40,6 +45,7 @@ func readConfig() {
 		//---------- 写入配置文件 -------------
 		config.Set("postsdir", "posts")
 		config.Set("refreshsecond", 300)
+		config.Set("host", "0.0.0.0:8080")
 		bakconf := fmt.Sprintf("./conf/gitmdblog.yaml")
 		if err := config.WriteConfigAs(bakconf); err != nil {
 			fmt.Println("[x] 创建默认配置文件失败")
@@ -48,6 +54,10 @@ func readConfig() {
 	}
 	blogPostsDir = config.GetString("postsdir")
 	refreshSecond = config.GetInt("refreshSecond")
+	listenIp := config.GetString("listen_ip")
+	listenPort := config.GetString("listen_port")
+
+	host = fmt.Sprintf("%v:%v", listenIp, listenPort)
 	msg := fmt.Sprintf("[v] 读取配置文件成功, posts dir: %s\n", blogPostsDir)
 	fmt.Print(msg)
 }

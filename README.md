@@ -17,7 +17,7 @@
 
  ```
 ---
-title: 2019-11-25 Mon. 日记
+title: 2019-11-25 Mon. Diary
 tags: Markdown,diary
 notebook: diary
 ---

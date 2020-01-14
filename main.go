@@ -23,7 +23,7 @@ var (
 	postDir       = config.GetBlogPostsDir()  //文章目录
 	siteName      = config.GetSiteName()      //站点名称
 	refreshSecond = config.GetRefreshSecond() //刷新频率
-	host          = "0.0.0.0:8001"
+	host          = config.GetHost()          //侦听IP和端口
 	isCreateHTML  = false
 	htmlPrefix    = "../itopic.org" //without last slash
 	domain        = ""
