@@ -162,6 +162,10 @@ func InitTopicList() error {
 
 		//append topics desc
 		for i := range Topics {
+			//	if i > 20 {
+			//		break
+			//	}
+
 			if t.Time.After(Topics[i].Time) {
 				Topics = append(Topics, nil)
 				copy(Topics[i+1:], Topics[i:])

@@ -10,7 +10,7 @@ var (
 	siteName      = "HappeLife"
 	blogPostsDir  = "posts"
 	refreshSecond = 60 * 5
-	host          = "0.0.0.0:8080"
+	host          = "127.0.0.1:8001"
 )
 
 // 获取博客文章目录
@@ -45,7 +45,7 @@ func readConfig() {
 		//---------- 写入配置文件 -------------
 		config.Set("postsdir", "posts")
 		config.Set("refreshsecond", 300)
-		config.Set("host", "0.0.0.0:8080")
+		config.Set("host", "127.0.0.1:8080")
 		bakconf := fmt.Sprintf("./conf/gitmdblog.yaml")
 		if err := config.WriteConfigAs(bakconf); err != nil {
 			fmt.Println("[x] 创建默认配置文件失败")
