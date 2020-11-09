@@ -65,6 +65,7 @@ func main() {
 	http.Handle("/favicon.ico", http.FileServer(http.Dir("static")))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
+	// 网站
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		logger.Debug("请求:%s", path)

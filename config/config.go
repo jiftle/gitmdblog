@@ -45,7 +45,8 @@ func readConfig() {
 		//---------- 写入配置文件 -------------
 		config.Set("postsdir", "posts")
 		config.Set("refreshsecond", 300)
-		config.Set("host", "127.0.0.1:8080")
+		config.Set("listen_ip", "127.0.0.1")
+		config.Set("listen_port", "8080")
 		bakconf := fmt.Sprintf("./conf/gitmdblog.yaml")
 		if err := config.WriteConfigAs(bakconf); err != nil {
 			fmt.Println("[x] 创建默认配置文件失败")
@@ -58,6 +59,6 @@ func readConfig() {
 	listenPort := config.GetString("listen_port")
 
 	host = fmt.Sprintf("%v:%v", listenIp, listenPort)
-	msg := fmt.Sprintf("[v] 读取配置文件成功, posts dir: %s\n", blogPostsDir)
+	msg := fmt.Sprintf("[v] 读取配置文件成功, host: %s\nposts dir: %s\n", host, blogPostsDir)
 	fmt.Print(msg)
 }
